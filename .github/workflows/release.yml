@@ -19,6 +19,9 @@ on:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
+permissions:
+  contents: read
+
 jobs:
   release:
     name: Release via Changesets (theokit-di)
@@ -39,8 +42,38 @@ jobs:
       # the sharpest edge: `v1` is not a tag in that repository, it is a BRANCH — any push to it
       # changed the code running here, with no release and no version bump to notice. Each pin
       # carries the version it resolved to on 2026-08-21, verified against the action's own tags.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Mint a short-lived token from the `theokit-release` GitHub App. GitHub does not start
+      # workflow runs from GITHUB_TOKEN-authored events, so a Version Packages pull request
+      # opened with that token arrives with none of its required checks running. An
+      # App-authored event does start them. Proven on theokit-ui: the same change took its
+      # version pull request from 0/3 required checks to 3/3, with no human gesture.
+      #
+      # The token is minted per run and expires with it. What is long-lived is the App's
+      # private key, held as an organization secret, scoped to three repository permissions.
+      # NOT used for npm — publishing stays OIDC trusted publishing, with no token at all.
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
         with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          # Narrow the token to what this job does rather than inheriting whatever the
+          # installation holds. zizmor flags the unrestricted form as high severity.
+          permission-contents: write
+          permission-pull-requests: write
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 # zizmor: ignore[artipacked]
+        with:
+          # The one checkout in this repository that keeps its credential, and not
+          # by oversight: changesets/action pushes the version commit and the
+          # release tags with the git CLI, which authenticates from exactly this
+          # persisted token. `persist-credentials: false` breaks the release.
+          #
+          # It must be the APP's token, not the default one. The push of
+          # `changeset-release/main` is what the pull request is opened against, so a push
+          # carrying the Actions bot's credential produces a bot-authored branch and the
+          # checks stay dormant even though the pull request was opened by the App. Both
+          # halves have to be the App or neither is.
+          token: ${{ steps.app-token.outputs.token }}
           # changesets reads tags to decide what is unpublished; a shallow clone hides them.
           fetch-depth: 0
 
@@ -54,6 +87,15 @@ jobs:
           # latest 22.x — comfortably past the 22.14.0 that trusted publishing requires.
           node-version-file: '.nvmrc'
           cache: 'pnpm'
+          # The cache key must change when the package manager does. setup-node keys the
+          # pnpm store on the lockfile alone, so a pnpm 9 -> 10 bump leaves the key
+          # identical and the job restores a store the new pnpm reads as inconsistent —
+          # `ERR_PNPM_MISSING_PACKAGE_INDEX_FILE`, on a package the lockfile does list.
+          # package.json carries `packageManager`, so including it ties the cache to the
+          # pnpm that wrote it.
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            package.json
           # NO `registry-url`. It looks harmless and is not: setup-node writes
           # `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}` into an npmrc UNCONDITIONALLY and
           # points NPM_CONFIG_USERCONFIG at it, then exports NODE_AUTH_TOKEN only if the caller
@@ -114,19 +156,20 @@ jobs:
       # secret-scan.yml is configured to run on `pull_request` with base `main`, scanning
       # base..head.
       #
-      # BE PRECISE ABOUT WHAT THAT BUYS, because the obvious sentence overstates it. changesets
-      # opens that PR with `secrets.GITHUB_TOKEN`, and GitHub does not start workflow runs from
-      # GITHUB_TOKEN-authored events — they are absent, or created needing manual approval; the
-      # docs read both ways and this repository has zero bot-triggered runs to settle it with.
-      # So the scan does NOT run by itself on the Version PR. What forces it is the other gate:
-      # `Verify (…)` is a required check on `main`, so with no runs the Version PR is not
-      # mergeable, and a person has to release the runs before anything can merge. The scan then
-      # runs alongside.
+      # THE PARAGRAPH THAT USED TO SIT HERE IS NOW WRONG, and is corrected rather than deleted
+      # because its reasoning still explains the design. It said the Version PR's checks do not
+      # run by themselves, that a person must release them, and that the only alternative was a
+      # PAT — which it rightly refused, since a PAT puts a long-lived credential back into the
+      # job that publishes.
       #
-      # That is a real guarantee and a weaker one than "unskippable by construction" — it needs a
-      # human in the path. Releases here already have one. Do not upgrade it by handing the action
-      # a PAT so the PR looks human-authored: that puts a long-lived credential back into the job
-      # that publishes, which is the thing this file was rewritten to remove.
+      # The first two clauses were true of `secrets.GITHUB_TOKEN` and are no longer true here:
+      # the App token above authors the pull request, so its checks — secret-scan included —
+      # start on their own. The third was true only because the third option did not exist yet.
+      # A GitHub App is not a PAT: it belongs to no person, carries three repository
+      # permissions, and is revocable without touching anyone's access.
+      #
+      # What survives unchanged: no npm credential belongs in this job, and the refusal of a
+      # PAT stands. Measured on theokit-ui before this was copied here.
       #
       # Unset rather than install trufflehog here: adding a network download to the job that
       # publishes buys a scan of generated version numbers that a later gate scans anyway.
@@ -142,9 +185,11 @@ jobs:
           publish: pnpm changeset publish
           version: pnpm changeset version
         env:
-          # The only credential left, and it is GitHub's own: changesets uses it to open the
-          # version pull request. Nothing here authenticates to npm.
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The App's token, so the Version Packages pull request is authored by the App and its
+          # required checks actually run. With `secrets.GITHUB_TOKEN` here the pull request opens
+          # with nothing but the external Apps reporting, and stays unmergeable until a person
+          # closes and reopens it. Nothing here authenticates to npm.
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           # NPM_CONFIG_PROVENANCE is gone on purpose, and the reason that does not depend on npm's
           # defaults is the local one: `publishConfig.provenance: true` already sits in all three
           # manifests, so provenance is declared beside the package it describes instead of in an

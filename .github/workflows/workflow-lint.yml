@@ -1,0 +1,34 @@
+# Lints the workflows themselves — actionlint for validity, zizmor for safety. The
+# implementation is shared: ten repositories carried a byte-identical copy of it, which
+# could only ever be corrected ten times.
+#
+#   https://github.com/usetheokit/shared-workflows/blob/main/.github/workflows/workflow-lint.yml
+#
+# NO `paths:` filter, deliberately. A path-filtered workflow does not run when a pull
+# request touches nothing it matches — and a check that never runs never reports, so
+# making one REQUIRED deadlocks every unrelated pull request permanently.
+name: Workflow Lint
+
+on:
+  push:
+    branches: [main, develop, workspace]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Declared here rather than in the reusable: a concurrency group inside a reusable is
+# shared by every repository calling it, so a run in one would cancel a run in another.
+concurrency:
+  group: workflow-lint-${{ github.ref }}
+  # A cancelled run on an integration branch leaves the commit with no verdict, which
+  # reads the same as a passing one. Only supersede elsewhere.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
+
+jobs:
+  lint:
+    # @v1 is a moving major on purpose: one correction reaches every caller on its next
+    # run. What it RUNS stays pinned — the actionlint image by digest, zizmor by version.
+    uses: usetheokit/shared-workflows/.github/workflows/workflow-lint.yml@v1 # zizmor: ignore[unpinned-uses]

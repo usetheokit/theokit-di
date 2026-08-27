@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The declared peer range on `@theokit/di` no longer promises versions this package does not work
+  with. It read `^0.1.0 || ^0.2.0`, but no `0.1.x` release supports a container-managed
+  `@Transactional` class. `0.1.0` does not export `PostConstruct` at all, so defining the class
+  threw `TypeError: decorator is not a function`; `0.1.1` exports it, but the container never
+  calls it, so the hook that binds the DataSource silently never ran and the first transactional
+  method raised `OrmConfigurationError: no DataSource bound to instance`. The container only began
+  invoking the hook in `@theokit/di@0.2.0`. Both installs resolved without a peer warning. The
+  range is now `^0.2.0`, which is the whole of what actually works (#44)
+
 ## [0.2.0] - 2026-08-21
 
 ### Added

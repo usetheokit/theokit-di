@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Installing this package next to the `@theokit/sdk` it actually needs no longer fails. The declared
+  peer range was `^1.3.0` while the package imports `@theokit/sdk/workflow` at runtime and the SDK
+  has been on 4.x for months, so `npm i @theokit/di-agent @theokit/sdk@^4` ended in `ERESOLVE` and
+  pnpm users got a peer warning for a combination that was never supported. The range is now
+  `>=4.0.1 <5`, verified at both ends: the suite passes against 4.0.1 and against 4.57.0. (#40)
+
 ## [0.3.0] - 2026-08-21
 
 ### Added

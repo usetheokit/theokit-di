@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The declared peer range on `@theokit/di` no longer promises a version this package does not
+  work with. It read `^0.1.0 || ^0.2.0`, but `@theokit/di@0.1.0` does not export `PostConstruct` —
+  the hook `@Transactional` requires from a container-managed class, and the one the error message
+  tells you to use. Installing that combination raised no peer warning and then threw
+  `TypeError: decorator is not a function` when the class was defined. The floor is now `^0.1.1`,
+  the first version that ships the decorator (#44)
+
 ## [0.2.0] - 2026-08-21
 
 ### Added

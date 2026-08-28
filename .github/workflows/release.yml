@@ -137,7 +137,7 @@ jobs:
       # satisfies both constraints. Bumping this to 12 does not cost a rejected flag — it costs
       # changesets the ability to see what is already published.
       - name: Install an npm that speaks OIDC (>= 11.5.1) but tolerates pnpm's publish flags
-        run: npm install -g npm@11.9.0 # zizmor: ignore[adhoc-packages] — bootstrapping npm itself; no lockfile can cover it
+        uses: usetheokit/shared-workflows/actions/npm-oidc@v1 # zizmor: ignore[unpinned-uses]
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm build

@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.4.0
+
+### Minor Changes
+
+- 33670b7: Realign the `@theokit/sdk` peer with the SDK this package actually imports.
+
+  **Install-contract break.** `@theokit/sdk` moves from `^1.3.0` to `>=4.0.1 <5`. An app pinned below
+  4 stops satisfying the peer. Minor bump because the version is still 0.x, where minor is the
+  breaking slot.
+
+  The old range described nothing that existed. `src/workflow-builder.ts` imports
+  `@theokit/sdk/workflow` at runtime, the package is developed and tested against the modern SDK, and
+  the published SDK has been on 4.x for months — so `npm i @theokit/di-agent @theokit/sdk@^4` ended in
+  `ERESOLVE`, and pnpm users got a peer warning for a combination that was never supported.
+  (usetheokit/theokit-di#40)
+
+  Verified at both ends of the new range: the suite passes against 4.0.1 and against 4.57.0. The
+  `@theokit/sdk` devDependency moves to `^4.57.0` for the same reason the range went stale unnoticed —
+  CI was resolving 1.x, compiling against it, and going green on a combination no consumer installs.
+
+### Patch Changes
+
+- 5bb0600: O peer range do `@theokit/di` deixa de prometer uma versão em que o pacote não funciona.
+
+  Declarava `^0.1.0-next.0 || ^0.2.0`, e o piso resolvível disso é `0.1.0` — que **não exporta
+  `METADATA_KEYS`**, um símbolo que `src/` importa. Um consumidor que resolvesse para 0.1.0 instalava
+  sem erro e partia nos decorators.
+
+  Medido antes de escrever o novo range, versão a versão: `0.1.0` não tem o símbolo, `0.1.1` tem,
+  `0.2.0` tem. O range passa a ser `>=0.1.1 <0.3`, que é o que a suíte prova.
+
+  Encontrado pelo leg `suite at the bottom of every declared range` do dep-check, que instala o piso
+  de cada range declarado e corre os testes contra ele — 31 falharam. É a única forma de um piso
+  mentiroso aparecer: nada mais no CI instala a versão mínima.
+
 All notable changes to `@theokit/di-agent` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
@@ -39,7 +74,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `readAuthMetadata`, `readEvalDecoratorMetadata` and `readWorkflowMetadata` now declare their parameter as `DecoratedClass` rather than `Function`. `Function` is the widest callable type there is, so it documented nothing and admitted values that are not classes. Any class you already passed still type-checks.
 - JSDoc and comments no longer cite plan tasks or edge-case identifiers that exist in no repository a reader can reach.
 - **Breaking:** `readCronMetadata` and `readHitlMetadata` return a `ReadonlyMap` keyed by method name instead of a single object or `undefined`. `@Cron` and `@Hitl` kept one object per class, so decorating a second method silently discarded the first — a class with two scheduled routines quietly lost one. Both now accumulate per method, like the other fourteen decorators. Migration: `readCronMetadata(C)?.schedule` becomes `readCronMetadata(C).get("methodName")?.schedule`, and an undecorated class yields an empty map rather than `undefined` (#6).
-
 
 ## 0.2.0
 

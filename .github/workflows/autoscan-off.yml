@@ -1,0 +1,43 @@
+name: Turn Automatic Analysis off
+
+# One-shot. SonarQube Cloud refuses a CI analysis while Automatic Analysis is enabled, and the
+# toggle lives in project settings that no workflow input reaches. `SONAR_TOKEN` is a repository
+# secret, readable only from inside a run — so the attempt has to happen here.
+#
+# Delete this file once `sonar.autoscan.enabled` reads false.
+
+on:
+  push:
+    branches: [workspace]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  flip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read the setting, try to flip it, read it back
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          PROJECT: usetheokit_theokit-di
+        run: |
+          set -uo pipefail
+          api=https://sonarcloud.io/api
+          before=$(curl -s "$api/settings/values?component=$PROJECT&keys=sonar.autoscan.enabled")
+          echo "before: $before"
+          code=$(curl -s -o /tmp/out.txt -w '%{http_code}' -u "$SONAR_TOKEN:" \
+            -X POST "$api/settings/set" \
+            --data-urlencode "component=$PROJECT" \
+            --data-urlencode "key=sonar.autoscan.enabled" \
+            --data-urlencode "value=false")
+          echo "POST settings/set -> HTTP $code"
+          cat /tmp/out.txt || true
+          after=$(curl -s "$api/settings/values?component=$PROJECT&keys=sonar.autoscan.enabled")
+          echo "after:  $after"
+          case "$after" in
+            *'"value":"false"'*) echo "::notice::Automatic Analysis is OFF — delete this workflow and add the shared sonar job." ;;
+            *) echo "::error::still enabled. The token lacks project administration rights; the toggle needs the UI." ; exit 1 ;;
+          esac

@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@theokit/di": "0.2.0",
+    "@theokit/di-agent": "0.4.0",
+    "@theokit/orm": "0.2.1"
+  },
+  "changesets": []
+}

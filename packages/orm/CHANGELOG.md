@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.1
+
+### Patch Changes
+
+- 302a9eb: O peer range do `@theokit/di` deixa de prometer versões em que o pacote não funciona.
+
+  `0.2.0` declarava `^0.1.0 || ^0.2.0`, e nenhuma 0.1.x atende ao que o `src/` usa. Um consumidor
+  que resolvesse para o piso instalava sem `ERESOLVE` e sem aviso de peer, e partia depois — em
+  `0.1.0`, com `TypeError: decorator is not a function` dentro do `reflect-metadata`, longe do range
+  que causou; em `0.1.1`, com `OrmConfigurationError: @Transactional run: no DataSource bound to
+instance`.
+
+  Medido versão a versão rodando a suíte contra cada piso, não deduzido da presença de um símbolo:
+  `0.1.0` não exporta `PostConstruct`, `0.1.1` exporta mas o `@Transactional` gerido pelo container
+  ainda quebra, `0.2.0` passa. O range passa a ser `^0.2.0` (usetheokit/theokit-di#44).
+
 All notable changes to `@theokit/orm` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
@@ -46,7 +62,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `repository`, `homepage` and `bugs` now point at `usetheokit/theokit-di`. They pointed at `usetheo/theokit-sdk`, so every "Repository" and "Report issues" link on npm led to a project that does not host this package.
 - `@Transactional` no longer claims the container binds its DataSource automatically. Nothing ever did. The error message now names `bindDataSourceToInstance`, the one call that fixes it, and the docs show the container recipe: inject `ORM_DATA_SOURCE_TOKEN` and bind in a `@PostConstruct` hook (#4).
 - **Breaking:** `@Transactional({ isolationLevel })` was accepted and silently ignored — the options parameter was never read. The level is now passed to the driver, and rejected with an `OrmConfigurationError` on `sqlite`, which has no per-transaction isolation level to set. Code that passed a level on sqlite and appeared to work was never getting one; it now fails instead of pretending (#4).
-
 
 ## [0.1.0] - 2026-06-22
 

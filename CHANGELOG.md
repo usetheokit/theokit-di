@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **ci:** `Promotion gate` refuses a pull request into `develop` that does not come from this repository's own `workspace`. `git-safety.md` has always said so and `validate-command.sh:245` has always blocked it — for a `git merge` typed locally, which is not how any of this repository's 17 promotions landed (usetheokit/theokit#606)
 
 - `Workflow Lint`, a CI gate running actionlint and zizmor over `.github/workflows/`, so the
   pipeline's own conventions — pinned actions, bounded jobs, least-privilege tokens — are checked

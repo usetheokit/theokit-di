@@ -137,3 +137,30 @@ jobs:
       # `@v1` is a moving ref by design — a policy fix in shared-workflows must reach every caller
       # without seven pull requests, which is the reason that repository exists.
       - uses: usetheokit/shared-workflows/actions/release-channel@v1 # zizmor: ignore[unpinned-uses]
+
+  # ONE required check for this whole workflow.
+  #
+  # Branch protection requires checks BY NAME, so every job added here is advisory
+  # until somebody edits the required list in the repository settings by hand.
+  # Measured across the ecosystem on 2026-09-01, that list had drifted everywhere —
+  # `release channel`, which stops a stable publish moving the `latest` dist-tag for
+  # every consumer, was required in ZERO repositories the week it was written.
+  #
+  # This job is what the branch requires. A job added to `needs` below is gated the
+  # moment it is listed; a job NOT listed is not, which is the one thing to check
+  # when adding one.
+  ci-ok:
+    name: CI
+    if: always()
+    needs:
+      - verify
+      - sonar
+      - release-channel
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # `@v1` is a moving ref by design — a policy fix in shared-workflows must reach
+      # every caller without nine pull requests, which is the reason that repo exists.
+      - uses: usetheokit/shared-workflows/actions/checks-pass@v1 # zizmor: ignore[unpinned-uses]
+        with:
+          needs: ${{ toJSON(needs) }}

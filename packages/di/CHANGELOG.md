@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `analyze()` no longer drops a cycle when two classes share a name. Cycles were de-duplicated by the
+  token's rendering rather than by the token, so two different classes called `Logger` keyed
+  identically and the second cycle was discarded as a duplicate of the first — one cycle reported,
+  and nothing to say the other existed. Two anonymous classes and two symbol tokens collided the same
+  way. The key is built from an identity table now (#59).
+
 - An anonymous class in an error message is now named `<anonymous>` instead of nothing at all.
   Four diagnostics rendered a class name as `target.name ?? "<anonymous>"`, and that fallback can
   never fire — an anonymous class has `name === ""`, not an absent one, so `??` passes the empty

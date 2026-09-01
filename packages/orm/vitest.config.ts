@@ -28,6 +28,10 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     coverage: {
       provider: "v8",
+      // `lcov` is what SonarCloud reads, and it is NOT in vitest's default reporter set —
+      // the defaults are text/html/clover/json. Naming any reporter replaces that set, so
+      // the four defaults are restated here rather than extended.
+      reporter: ["text", "html", "clover", "json", "lcov"],
       include: ["src/**/*.ts"],
       exclude: ["src/index.ts", "src/types.ts", "**/*.d.ts"],
       thresholds: {

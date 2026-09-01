@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- An anonymous class in an error message is now named `<anonymous>` instead of nothing at all.
+  Four diagnostics rendered a class name as `target.name ?? "<anonymous>"`, and that fallback can
+  never fire — an anonymous class has `name === ""`, not an absent one, so `??` passes the empty
+  string straight through. A consumer who passed a class expression read `Class  has no @Module()
+  decorator.`, with two spaces where the identity belongs and nothing to search for. Affects
+  `MissingInjectableError`, `InvalidModuleError`, the `emitted as ...` hint in the container's
+  parameter diagnostics, and cycle labels in `analyze()` (#57).
+
+### Added
+
+- `describeClassName(target, fallback)` is exported alongside `describeToken`. The four sites above
+  had each written their own version of "a class's display name, with a fallback"; `describeToken`
+  was the only one that got it right, and now it is the only one that states it (#57).
+
 ## [0.2.0] - 2026-08-21
 
 ### Added

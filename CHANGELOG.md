@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **ci:** `packages/di` meets its own coverage thresholds, so `pnpm test:coverage` exits 0 across
+  the workspace. Branch coverage went 81.81% → 88.65% against a declared floor of 85%. The floor had
+  never been evaluated — CI ran `pnpm test`, never the coverage variant — so the number in
+  `vitest.config.ts` was read in review as an enforced floor and was neither (#57).
+
 - **ci:** SonarQube Cloud now runs from CI instead of Automatic Analysis, and it finally imports
   coverage. Automatic Analysis does not import coverage at all, so the quality gate here reported
   bugs and smells while staying blind to what the suite reaches (#52).

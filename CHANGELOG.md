@@ -14,6 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **ci:** SonarQube Cloud now runs from CI instead of Automatic Analysis, and it finally imports
+  coverage. Automatic Analysis does not import coverage at all, so the quality gate here reported
+  bugs and smells while staying blind to what the suite reaches (#52).
+
+- **ci:** the three packages emit `lcov` coverage. `sonar-project.properties` has named
+  `packages/*/coverage/lcov.info` since it was written, and no `vitest.config.ts` produced one —
+  vitest's default reporters are text/html/clover/json. The scan would have reported 0% over a
+  green suite, which is indistinguishable from a measured 0% (#52).
+
 - **ci:** per-commit package previews via pkg.pr.new. A fix here is unverifiable from a sibling
   repository until it is on a registry, and this ecosystem has nine interdependent publishable
   repositories — measured 2026-08-31, `@theokit/http` reached 2.0.0 in one while three packages in

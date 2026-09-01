@@ -87,6 +87,37 @@ jobs:
       - name: Documentation gates (orphans, drift, coverage)
         run: pnpm quality:docs
 
+  # SonarQube Cloud, from CI rather than Automatic Analysis.
+  #
+  # Automatic Analysis does not import coverage — "code coverage information is not supported" in
+  # its own documentation — so on that mechanism this project reported bugs and smells while the
+  # quality gate stayed blind to how much of the code the suite reaches.
+  #
+  # Automatic Analysis must be OFF for this project or the scanner refuses to run:
+  # "You are running CI analysis while Automatic Analysis is enabled." Switched off 2026-09-01;
+  # it is a UI toggle, the settings API refuses it with `cannot be set on a Project`.
+  #
+  # The coverage command is allowed to fail without failing the scan (the shared workflow marks it
+  # continue-on-error and warns). `packages/di` does not currently meet its own 85% branch
+  # threshold — 81.81% measured 2026-09-01 — and lowering the threshold to make the command exit 0
+  # would buy a green line by deleting the measurement. The `--no-bail` in `test:coverage` is what
+  # keeps that one failure from costing the other two packages their lcov entirely.
+  sonar:
+    needs: verify
+    # `@v1` is a moving ref by design — a policy fix in shared-workflows must reach every
+    # caller without eleven pull requests, which is the reason that repository exists.
+    uses: usetheokit/shared-workflows/.github/workflows/sonar.yml@v1 # zizmor: ignore[unpinned-uses]
+    # Named rather than inherited: `secrets: inherit` would hand the scanner every secret
+    # this repository holds.
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    with:
+      # `@theokit/di` is a `workspace:*` dependency of di-agent and orm and resolves through its
+      # `exports` map, which points at `dist/`. Without this the coverage run fails to resolve the
+      # entry and the scan completes with no coverage at all — measured on theokit-sdk.
+      build-command: pnpm build
+      coverage-command: pnpm test:coverage
+
   # The channel this repository declares and the state changesets is actually in must agree.
   # `changeset pre exit`, a bad merge, or a conflict resolved the wrong way removes
   # `.changeset/pre.json`; nothing errors; the next release publishes a stable version and moves

@@ -98,10 +98,11 @@ jobs:
   # it is a UI toggle, the settings API refuses it with `cannot be set on a Project`.
   #
   # The coverage command is allowed to fail without failing the scan (the shared workflow marks it
-  # continue-on-error and warns). `packages/di` does not currently meet its own 85% branch
-  # threshold — 81.81% measured 2026-09-01 — and lowering the threshold to make the command exit 0
-  # would buy a green line by deleting the measurement. The `--no-bail` in `test:coverage` is what
-  # keeps that one failure from costing the other two packages their lcov entirely.
+  # continue-on-error and warns), and `test:coverage` carries `--no-bail` so one package failing its
+  # own thresholds cannot cost the other two their lcov. Both were load-bearing when this job landed:
+  # `packages/di` was at 81.81% branches against its declared 85%, having never run the check. It is
+  # at 88.65% now (#57) and the command exits 0 — the two guards stay because the next package to
+  # slip should cost its own number, not the scan.
   sonar:
     needs: verify
     # `@v1` is a moving ref by design — a policy fix in shared-workflows must reach every

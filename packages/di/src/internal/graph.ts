@@ -6,6 +6,7 @@
  * with multiple cycles don't blow the call stack.
  */
 
+import { describeClassName } from "../errors.js";
 import type { Scope, Token } from "../types.js";
 
 export interface GraphNode {
@@ -123,6 +124,6 @@ function canonicalCycleKey(cycle: ReadonlyArray<Token>): string {
 
 function stringifyToken(token: Token): string {
   if (typeof token === "string") return `s:${token}`;
-  if (typeof token === "function") return `c:${(token as { name?: string }).name ?? "<anon>"}`;
+  if (typeof token === "function") return `c:${describeClassName(token, "<anon>")}`;
   return "u:<unknown>";
 }

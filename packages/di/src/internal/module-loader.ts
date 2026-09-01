@@ -8,7 +8,7 @@
  */
 
 import { type ModuleMetadata, readModuleMetadata } from "../decorators/module.js";
-import { describeToken } from "../errors.js";
+import { describeClassName, describeToken } from "../errors.js";
 import type { ClassConstructor, ModuleRegistrar, Provider, Token } from "../types.js";
 
 /**
@@ -19,7 +19,7 @@ export class InvalidModuleError extends Error {
   override readonly name = "InvalidModuleError" as const;
   constructor(public readonly target: { name?: string }) {
     super(
-      `Class ${target.name ?? "<anonymous>"} has no @Module() decorator. ` +
+      `Class ${describeClassName(target, "<anonymous>")} has no @Module() decorator. ` +
         "Add @Module({ providers: [...], imports: [...], exports: [...] }) above the class declaration.",
     );
   }

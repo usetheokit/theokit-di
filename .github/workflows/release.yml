@@ -29,7 +29,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: read # Read the tree; the publishing job below declares its own wider scope.
 
 jobs:
   # The last line, for the path that reached a release without passing through a pull request.
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      contents: read
+      contents: read # Read the tree; the publishing job below declares its own wider scope.
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -70,12 +70,9 @@ jobs:
     # keeps a wedged job from holding a runner, and this is the job it costs the most to leave open.
     timeout-minutes: 30
     permissions:
-      # changesets opens and updates the version pull request, and pushes its tags.
-      contents: write
-      pull-requests: write
-      # The OIDC token npm exchanges for permission to publish. Without it there is no credential
-      # at all now that the token is gone.
-      id-token: write
+      contents: write # changesets opens and updates the version pull request, and pushes its tags.
+      pull-requests: write # Open and update the "Version Packages" pull request.
+      id-token: write # OIDC for npm trusted publishing; with no token, this is the only credential.
     steps:
       # Actions pinned by commit SHA rather than by tag. This job can publish signed packages as
       # this organization, so whatever it runs must be a fixed commit. `changesets/action@v1` was

@@ -15,6 +15,7 @@ import {
   ContainerDisposedError,
   ContainerFrozenError,
   CyclicDependencyError,
+  describeClassName,
   describeToken,
   MissingInjectableError,
   ReflectMetadataMissingError,
@@ -557,7 +558,7 @@ export class Container {
     if (isOptional) return undefined;
     throw new TypeError(
       `Class ${target.name} has a primitive/interface constructor parameter at index ${index} ` +
-        `(emitted as ${(paramType as { name?: string }).name ?? "<unknown>"}). ` +
+        `(emitted as ${describeClassName(paramType, "<unknown>")}). ` +
         "Primitives and interfaces cannot be auto-resolved — use `@Inject('SOME_STRING_TOKEN')` to provide an explicit token.",
     );
   }

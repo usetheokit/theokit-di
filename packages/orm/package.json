@@ -38,7 +38,8 @@
         "types": "./dist/schema-export.d.cts",
         "default": "./dist/schema-export.cjs"
       }
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",

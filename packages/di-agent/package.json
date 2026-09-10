@@ -27,7 +27,8 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
@@ -69,5 +70,6 @@
   "publishConfig": {
     "access": "public",
     "provenance": true
-  }
+  },
+  "sideEffects": true
 }

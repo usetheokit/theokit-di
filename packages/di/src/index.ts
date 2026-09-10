@@ -14,6 +14,7 @@ export {
   ContainerDisposedError,
   ContainerFrozenError,
   CyclicDependencyError,
+  describeClassName,
   describeToken,
   MissingInjectableError,
   ReflectMetadataMissingError,

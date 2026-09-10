@@ -86,6 +86,47 @@ jobs:
       # a consumer installs is the only one whose documentation is real.
       - name: Documentation gates (orphans, drift, coverage)
         run: pnpm quality:docs
+      # The published-manifest contract, checked instead of remembered. Audited across 50
+      # packages on 2026-09-01: 38 did not export "./package.json" — reproduced as
+      # `ERR_PACKAGE_PATH_NOT_EXPORTED` against a real tarball — 30 had no keywords and 18
+      # declared no sideEffects at all.
+      #
+      # `@v1` is a moving ref by design — a policy fix in shared-workflows must reach every
+      # caller without nine pull requests, which is the reason that repo exists.
+      - name: Published manifests satisfy the contract
+        uses: usetheokit/shared-workflows/actions/manifest-check@v1 # zizmor: ignore[unpinned-uses]
+
+  # SonarQube Cloud, from CI rather than Automatic Analysis.
+  #
+  # Automatic Analysis does not import coverage — "code coverage information is not supported" in
+  # its own documentation — so on that mechanism this project reported bugs and smells while the
+  # quality gate stayed blind to how much of the code the suite reaches.
+  #
+  # Automatic Analysis must be OFF for this project or the scanner refuses to run:
+  # "You are running CI analysis while Automatic Analysis is enabled." Switched off 2026-09-01;
+  # it is a UI toggle, the settings API refuses it with `cannot be set on a Project`.
+  #
+  # The coverage command is allowed to fail without failing the scan (the shared workflow marks it
+  # continue-on-error and warns), and `test:coverage` carries `--no-bail` so one package failing its
+  # own thresholds cannot cost the other two their lcov. Both were load-bearing when this job landed:
+  # `packages/di` was at 81.81% branches against its declared 85%, having never run the check. It is
+  # at 88.65% now (#57) and the command exits 0 — the two guards stay because the next package to
+  # slip should cost its own number, not the scan.
+  sonar:
+    needs: verify
+    # `@v1` is a moving ref by design — a policy fix in shared-workflows must reach every
+    # caller without eleven pull requests, which is the reason that repository exists.
+    uses: usetheokit/shared-workflows/.github/workflows/sonar.yml@v1 # zizmor: ignore[unpinned-uses]
+    # Named rather than inherited: `secrets: inherit` would hand the scanner every secret
+    # this repository holds.
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    with:
+      # `@theokit/di` is a `workspace:*` dependency of di-agent and orm and resolves through its
+      # `exports` map, which points at `dist/`. Without this the coverage run fails to resolve the
+      # entry and the scan completes with no coverage at all — measured on theokit-sdk.
+      build-command: pnpm build
+      coverage-command: pnpm test:coverage
 
   # The channel this repository declares and the state changesets is actually in must agree.
   # `changeset pre exit`, a bad merge, or a conflict resolved the wrong way removes
@@ -105,3 +146,30 @@ jobs:
       # `@v1` is a moving ref by design — a policy fix in shared-workflows must reach every caller
       # without seven pull requests, which is the reason that repository exists.
       - uses: usetheokit/shared-workflows/actions/release-channel@v1 # zizmor: ignore[unpinned-uses]
+
+  # ONE required check for this whole workflow.
+  #
+  # Branch protection requires checks BY NAME, so every job added here is advisory
+  # until somebody edits the required list in the repository settings by hand.
+  # Measured across the ecosystem on 2026-09-01, that list had drifted everywhere —
+  # `release channel`, which stops a stable publish moving the `latest` dist-tag for
+  # every consumer, was required in ZERO repositories the week it was written.
+  #
+  # This job is what the branch requires. A job added to `needs` below is gated the
+  # moment it is listed; a job NOT listed is not, which is the one thing to check
+  # when adding one.
+  ci-ok:
+    name: CI
+    if: always()
+    needs:
+      - verify
+      - sonar
+      - release-channel
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # `@v1` is a moving ref by design — a policy fix in shared-workflows must reach
+      # every caller without nine pull requests, which is the reason that repo exists.
+      - uses: usetheokit/shared-workflows/actions/checks-pass@v1 # zizmor: ignore[unpinned-uses]
+        with:
+          needs: ${{ toJSON(needs) }}

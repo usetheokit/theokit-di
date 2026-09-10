@@ -27,5 +27,13 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     setupFiles: ["./vitest.setup.ts"],
     testTimeout: 240_000, // budget for the real-LLM integration test
+    coverage: {
+      provider: "v8",
+      include: ["src/**/*.ts"],
+      // `lcov` is what SonarCloud reads, and it is NOT in vitest's default reporter set —
+      // the defaults are text/html/clover/json. Naming any reporter replaces that set, so
+      // the four defaults are restated here rather than extended.
+      reporter: ["text", "html", "clover", "json", "lcov"],
+    },
   },
 });

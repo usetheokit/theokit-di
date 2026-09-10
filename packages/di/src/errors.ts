@@ -22,6 +22,23 @@ export function describeToken(token: Token): string {
 }
 
 /**
+ * Renders a constructor's name for a diagnostic, falling back when it has none.
+ *
+ * `??` is WRONG here and was used at four call sites until 2026-09-01. An
+ * anonymous class does not have an absent `name` — it has `""`, and `"" ?? x` is
+ * `""`. So the fallbacks never fired, and a consumer who passed a class
+ * expression read `Class  has no @Module() decorator.`: two spaces where the
+ * identity should be, and nothing at all to search the codebase for.
+ *
+ * `describeToken` above had the check right (`name.length > 0`) and the other
+ * sites drifted from it, so the knowledge lives in one place now.
+ */
+export function describeClassName(target: unknown, fallback: string): string {
+  const name = (target as { name?: unknown } | null | undefined)?.name;
+  return typeof name === "string" && name.length > 0 ? name : fallback;
+}
+
+/**
  * Thrown when `resolve()` / `resolveAsync()` is asked for a token that
  * was never registered.
  */
@@ -118,7 +135,7 @@ export class MissingInjectableError extends Error {
   override readonly name = "MissingInjectableError" as const;
   constructor(public readonly target: { name?: string }) {
     super(
-      `Class ${target.name ?? "<anonymous>"} has no @Injectable() decorator. ` +
+      `Class ${describeClassName(target, "<anonymous>")} has no @Injectable() decorator. ` +
         `Add @Injectable() above the class declaration before registering it.`,
     );
   }

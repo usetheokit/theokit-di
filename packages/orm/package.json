@@ -1,6 +1,6 @@
 {
   "name": "@theokit/orm",
-  "version": "0.2.1",
+  "version": "0.2.2-next.0",
   "description": "Repository pattern + @InjectRepository decorator + agent-aware columns + @Transactional + schema export polyglot over drizzle-orm, consuming @theokit/di for inversion of control. NestJS TypeORM-equivalent DX for the theokit ecosystem.",
   "license": "Apache-2.0",
   "homepage": "https://github.com/usetheokit/theokit-di#readme",
@@ -66,7 +66,7 @@
     "Theo"
   ],
   "peerDependencies": {
-    "@theokit/di": "^0.2.0",
+    "@theokit/di": "^0.2.1-next.0",
     "drizzle-orm": ">=0.36.0",
     "reflect-metadata": "^0.2.0"
   },

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.2-next.0
+
+### Patch Changes
+
+- Updated dependencies [8e59fec]
+- Updated dependencies [452d6ba]
+  - @theokit/di@0.2.1-next.0
+
 ## 0.2.1
 
 ### Patch Changes

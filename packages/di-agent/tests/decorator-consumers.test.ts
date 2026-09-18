@@ -29,31 +29,36 @@ function sources(dir: string): string[] {
   return out;
 }
 
-/**
- * A reader has a consumer when some file under `src/` references it that is neither the decorator
- * that defines it nor the barrel that re-exports it. Both of those mention every reader by
- * construction, so counting them would make every reader look consumed.
- */
-function readersWithAConsumer(): ReadonlySet<string> {
-  const files = sources(SRC);
+/** Every `read*Metadata` this package defines. */
+function declaredReaders(files: readonly string[]): ReadonlySet<string> {
   const readers = new Set<string>();
   for (const f of files) {
     for (const m of readFileSync(f, "utf8").matchAll(
       /\bexport function (read[A-Za-z]*Metadata)\b/g,
     )) {
-      const name = m[1];
-      if (name !== undefined) readers.add(name);
+      if (m[1] !== undefined) readers.add(m[1]);
     }
   }
+  return readers;
+}
+
+/**
+ * Files that could consume a reader: everything under `src/` except the decorator that defines one
+ * and the barrel that re-exports it. Both mention every reader by construction, so counting them
+ * would make every reader look consumed.
+ */
+function consumerCandidates(files: readonly string[]): readonly string[] {
+  return files.filter((f) => !f.includes("decorators/") && !f.endsWith("index.ts"));
+}
+
+/** The readers some file under `src/` actually references. */
+function readersWithAConsumer(): ReadonlySet<string> {
+  const files = sources(SRC);
+  const readers = declaredReaders(files);
   expect(readers.size, "no readers found — the scan is reading nothing").toBeGreaterThan(0);
 
-  const consumed = new Set<string>();
-  for (const f of files) {
-    if (f.includes(`${"decorators"}/`) || f.endsWith("index.ts")) continue;
-    const text = readFileSync(f, "utf8");
-    for (const reader of readers) if (text.includes(reader)) consumed.add(reader);
-  }
-  return consumed;
+  const texts = consumerCandidates(files).map((f) => readFileSync(f, "utf8"));
+  return new Set([...readers].filter((r) => texts.some((t) => t.includes(r))));
 }
 
 /**

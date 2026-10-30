@@ -66,11 +66,18 @@ const DIALECTS_WITH_ISOLATION_LEVEL: ReadonlySet<DataSource["dialect"]> = new Se
  * `@Transactional(options?)` — run a method inside a database transaction.
  *
  * The wrapped method executes within `db.transaction(...)`, and the transaction handle is
- * published on the async context so `getTxContext()` inside the call returns it. The
- * method's resolved value is returned; anything it throws rolls the transaction back.
+ * published on the async context, so every `Repository` call made during the method, at
+ * any depth of `await`, runs on the transaction. The method's resolved value is returned;
+ * anything it throws rolls the transaction back.
  *
  * The instance must carry a DataSource before the method runs — see
  * {@link bindDataSourceToInstance}, which is the only thing that puts one there.
+ *
+ * The driver must run transactions asynchronously. Drizzle's synchronous SQLite drivers
+ * (better-sqlite3, bun:sqlite, sql.js, expo-sqlite) are refused with
+ * {@link OrmConfigurationError} before the method body runs: a transaction on one synchronous
+ * connection cannot stay open across an `await`, and the method would otherwise run, and
+ * write, outside any transaction. libSQL and D1 are asynchronous and supported.
  */
 export function Transactional(opts: TransactionalOptions = {}): MethodDecorator {
   return function transactionalDecorator(
@@ -136,11 +143,23 @@ function resolveTransactionFn(
     );
   }
 
-  const db = ds.db as { transaction?: TransactionFn };
+  const db = ds.db as { transaction?: TransactionFn; resultKind?: unknown };
   if (typeof db.transaction !== "function") {
     throw new OrmConfigurationError(
       `${where}: DataSource.db does not expose .transaction(). ` +
         `Ensure you passed a Drizzle db instance.`,
+    );
+  }
+
+  // Checked before the method runs, because afterwards is too late: a synchronous driver throws
+  // "Transaction function cannot return a promise" only once the callback has returned, by which
+  // point the method has started and keeps running, and writing, with no transaction around it.
+  if (db.resultKind === "sync") {
+    throw new OrmConfigurationError(
+      `${where}: the ${ds.dialect} driver behind DataSource "${ds.name}" runs transactions ` +
+        `synchronously (better-sqlite3, bun:sqlite, sql.js, expo-sqlite), and a synchronous ` +
+        `transaction cannot stay open across an await. Use an asynchronous driver, or call ` +
+        `db.transaction((tx) => { ... }) directly with synchronous statements inside.`,
     );
   }
 

@@ -13,8 +13,9 @@ export class OrmError extends Error {
  * The wiring is wrong, and no input will make the call succeed.
  *
  * Raised when an entity has no primary key, when `forFeature` runs before `forRoot` for its data
- * source, when `@Transactional` finds no DataSource bound to the instance, or when the handle
- * passed as `db` does not expose `transaction()`. Every case is a mistake in setup rather than in
+ * source, when `@Transactional` finds no DataSource bound to the instance, when the handle
+ * passed as `db` does not expose `transaction()`, or when that handle is a synchronous SQLite
+ * driver whose transactions cannot span an `await`. Every case is a mistake in setup rather than in
  * the data, so it fails at the earliest point that can see it rather than at the first query.
  */
 export class OrmConfigurationError extends OrmError {

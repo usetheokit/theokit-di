@@ -8,3 +8,6 @@ coverage/
 
 # Kit de manutencao (Squad) instalado em .claude/ — nao versionado
 .claude/
+
+# Written and removed by packages/orm/tests/integration/readme-transactions.test.ts
+.readme-generated/

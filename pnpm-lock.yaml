@@ -83,6 +83,9 @@ importers:
 
   packages/orm:
     devDependencies:
+      '@electric-sql/pglite':
+        specifier: ^0.5.10
+        version: 0.5.10
       '@stryker-mutator/core':
         specifier: ^9.6.1
         version: 9.6.1(@types/node@22.19.21)
@@ -106,7 +109,7 @@ importers:
         version: 11.10.0
       drizzle-orm:
         specifier: ^0.36.4
-        version: 0.36.4(@types/better-sqlite3@7.6.13)(better-sqlite3@11.10.0)
+        version: 0.36.4(@electric-sql/pglite@0.5.10)(@types/better-sqlite3@7.6.13)(better-sqlite3@11.10.0)
       reflect-metadata:
         specifier: ^0.2.0
         version: 0.2.2
@@ -400,6 +403,9 @@ packages:
 
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
+
+  '@electric-sql/pglite@0.5.10':
+    resolution: {integrity: sha512-tXc/25U3ulOkiRQuTFdwIv+JhBqtMdAF7Gvo6CfZZWtSB4+hgC4Wr2vwK5ngvvN5PJfAAEGIsfyCVy1JhCOBYw==}
 
   '@emnapi/core@1.10.0':
     resolution: {integrity: sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw==}
@@ -2966,6 +2972,8 @@ snapshots:
       human-id: 4.2.0
       prettier: 2.8.8
 
+  '@electric-sql/pglite@0.5.10': {}
+
   '@emnapi/core@1.10.0':
     dependencies:
       '@emnapi/wasi-threads': 1.2.1
@@ -3783,8 +3791,9 @@ snapshots:
     dependencies:
       path-type: 4.0.0
 
-  drizzle-orm@0.36.4(@types/better-sqlite3@7.6.13)(better-sqlite3@11.10.0):
+  drizzle-orm@0.36.4(@electric-sql/pglite@0.5.10)(@types/better-sqlite3@7.6.13)(better-sqlite3@11.10.0):
     optionalDependencies:
+      '@electric-sql/pglite': 0.5.10
       '@types/better-sqlite3': 7.6.13
       better-sqlite3: 11.10.0
 

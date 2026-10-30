@@ -25,6 +25,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `@Transactional` refuses a synchronous SQLite driver (better-sqlite3, bun:sqlite, sql.js,
+  expo-sqlite) with `OrmConfigurationError` before the method body runs. It used to hand the driver
+  an async callback, which the driver rejects with `TypeError: Transaction function cannot return a
+  promise` only after the method had started: the method kept running outside any transaction, its
+  writes committed, and its own error escaped as an unhandled rejection that ends a Node process by
+  default. A transaction on one synchronous connection cannot stay open across an `await`, so the
+  decorator now says so instead. Asynchronous drivers, libSQL and D1 included, are unaffected (#76)
+
 - The declared peer range on `@theokit/di` no longer promises versions this package does not work
   with. It read `^0.1.0 || ^0.2.0`, but no `0.1.x` release supports a container-managed
   `@Transactional` class. `0.1.0` does not export `PostConstruct` at all, so defining the class

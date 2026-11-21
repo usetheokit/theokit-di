@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.2.1
+
+### Patch Changes
+
+- 8e59fec: Name an anonymous class `<anonymous>` in diagnostics instead of rendering nothing.
+
+  Four call sites wrote a class name as `target.name ?? "<anonymous>"`, and that fallback could never
+  fire: an anonymous class has `name === ""`, not an absent one, and `"" ?? x` is `""`. A consumer who
+  passed a class expression read `Class  has no @Module() decorator.` — two spaces where the identity
+  belongs, and nothing to search the codebase for. `MissingInjectableError`, `InvalidModuleError`, the
+  `emitted as ...` hint in constructor-parameter diagnostics and the cycle labels in `analyze()` are
+  all affected.
+
+  `describeToken` in the same file had the check right all along (`name.length > 0`); the other sites
+  had drifted from it. The knowledge now lives in one exported helper, `describeClassName`.
+
+- 452d6ba: `analyze()` no longer drops a cycle when two classes share a name.
+
+  `findCycles` de-duplicated cycles by the token's RENDERING rather than by the token, so two different
+  classes with the same `name` produced the same key and the second cycle was discarded as a duplicate
+  of the first. Two files each declaring `class Logger` and `class Service` was enough to trigger it, as
+  was any two anonymous classes or any two symbol tokens: `analyze()` reported one cycle, and nothing
+  said the other had been dropped. A consumer debugging a cyclic dependency fixed the loop they were
+  shown and met the next one on the following run.
+
+  Cycles are now keyed on an identity table. The rotation that makes the key independent of which node
+  the walk entered on is unchanged.
+
 All notable changes to `@theokit/di` are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
@@ -19,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Four diagnostics rendered a class name as `target.name ?? "<anonymous>"`, and that fallback can
   never fire — an anonymous class has `name === ""`, not an absent one, so `??` passes the empty
   string straight through. A consumer who passed a class expression read `Class  has no @Module()
-  decorator.`, with two spaces where the identity belongs and nothing to search for. Affects
+decorator.`, with two spaces where the identity belongs and nothing to search for. Affects
   `MissingInjectableError`, `InvalidModuleError`, the `emitted as ...` hint in the container's
   parameter diagnostics, and cycle labels in `analyze()` (#57).
 
@@ -64,7 +92,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   five now cover them. (#23)
 - `@Primary` and `@Qualifier` documented a resolution priority the container has never had. They record metadata and nothing else, and their JSDoc now says exactly that, with the working alternative alongside. Implementing them means holding several registrations per token — which is the cache key, the cycle-detection node identity and the disposal order — so it is a design decision rather than a missing branch, and it has not been made (#5).
 - The English-only lint gate could not fail on an accented word. It split identifiers with an ASCII-only pattern before testing them for diacritics, so `não` became `n` and `o` and the diacritic tier was unreachable. Both tiers now work, verified by planting an accented identifier and watching the sweep turn red (#7).
-
 
 ## 0.1.1
 

@@ -3,6 +3,7 @@ import { Container } from "@theokit/di";
 import { createAgentProvider } from "./agent-provider.js";
 import { AGENT_TOKEN } from "./tokens.js";
 
+/** Options for `createAgentBoundary()`. */
 export interface AgentBoundaryOptions<TSeed, TAgent> {
   /** Called once per `withAgent` call, inside its request scope. */
   readonly factory: (seed: TSeed) => TAgent | Promise<TAgent>;
@@ -13,6 +14,7 @@ export interface AgentBoundaryOptions<TSeed, TAgent> {
   readonly container?: Container;
 }
 
+/** A request boundary that builds one seeded agent per `withAgent` call. */
 export interface AgentBoundary<TSeed, TAgent> {
   /**
    * Opens a request scope seeded with `seed`, builds the agent in it and runs
@@ -32,9 +34,8 @@ export function createAgentBoundary<TSeed, TAgent>(
   container.register(createAgentProvider<TSeed, TAgent>({ factory: options.factory, container }));
   return {
     withAgent: (seed, work) =>
-      container.runInRequest(
-        async () => work(await container.resolveAsync<TAgent>(AGENT_TOKEN)),
-        { seed },
-      ),
+      container.runInRequest(async () => work(await container.resolveAsync<TAgent>(AGENT_TOKEN)), {
+        seed,
+      }),
   };
 }

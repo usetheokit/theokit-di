@@ -17,6 +17,7 @@ export {
   describeClassName,
   describeToken,
   MissingInjectableError,
+  MissingRequestSeedError,
   ReflectMetadataMissingError,
   ScopeViolationError,
   TokenNotFoundError,

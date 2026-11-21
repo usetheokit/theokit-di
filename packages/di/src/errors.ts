@@ -123,6 +123,19 @@ export class ScopeViolationError extends Error {
 }
 
 /**
+ * Thrown by `container.requestSeed()` inside a request scope that was opened
+ * without a seed.
+ */
+export class MissingRequestSeedError extends Error {
+  override readonly name = "MissingRequestSeedError" as const;
+  constructor() {
+    super(
+      "The active request scope has no seed. Pass { seed } to runInRequest: container.runInRequest(cb, { seed }).",
+    );
+  }
+}
+
+/**
  * Thrown when a class is registered as a provider (via `useClass` or shorthand)
  * but lacks the `@Injectable()` decorator. The decorator emits
  * `design:paramtypes` metadata that the container needs to auto-resolve

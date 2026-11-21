@@ -1,4 +1,13 @@
-export { type CreateAgentProviderOptions, createAgentProvider } from "./agent-provider.js";
+export {
+  type AgentBoundary,
+  type AgentBoundaryOptions,
+  createAgentBoundary,
+} from "./agent-boundary.js";
+export {
+  type CreateAgentProviderOptions,
+  type CreateSeededAgentProviderOptions,
+  createAgentProvider,
+} from "./agent-provider.js";
 export { Auth, type AuthOptions, readAuthMetadata } from "./decorators/auth.js";
 export {
   AutoSummarize,

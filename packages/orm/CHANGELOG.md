@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.3
+
+### Patch Changes
+
+- b2e8d48: The `@theokit/di` peer range admits 0.3, so a consumer on the release with `requestSeed` can install `@theokit/orm` without a peer conflict.
+- 12e1f8a: The `@theokit/di` peer range is now `>=0.2.0 <0.4`, so a release of `@theokit/di` 0.3.x no longer
+  strands this package.
+
 ## 0.2.2
 
 ### Patch Changes

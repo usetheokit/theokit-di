@@ -1,4 +1,4 @@
-import { type FactoryProvider, Scope } from "@theokit/di";
+import { type Container, type FactoryProvider, Scope } from "@theokit/di";
 
 import { AGENT_TOKEN } from "./tokens.js";
 
@@ -26,6 +26,18 @@ export interface CreateAgentProviderOptions<TAgent> {
 }
 
 /**
+ * Options for the seeded form: the factory receives the seed the active
+ * request was opened with (`runInRequest(cb, { seed })`). A factory provider
+ * gets no container, so the container that opens the request is passed here.
+ */
+export interface CreateSeededAgentProviderOptions<TSeed, TAgent> {
+  factory: (seed: TSeed) => TAgent | Promise<TAgent>;
+  /** The container whose `runInRequest(cb, { seed })` carries the seed. */
+  container: Container;
+  scope?: Scope;
+}
+
+/**
  * Build a `FactoryProvider` that materializes an Agent on demand.
  *
  * @example
@@ -42,12 +54,22 @@ export interface CreateAgentProviderOptions<TAgent> {
  *   })
  *   class AppModule {}
  */
+export function createAgentProvider<TSeed, TAgent>(
+  options: CreateSeededAgentProviderOptions<TSeed, TAgent>,
+): FactoryProvider<TAgent>;
 export function createAgentProvider<TAgent>(
   options: CreateAgentProviderOptions<TAgent>,
-): FactoryProvider<TAgent> {
+): FactoryProvider<TAgent>;
+export function createAgentProvider(
+  options: CreateAgentProviderOptions<unknown> | CreateSeededAgentProviderOptions<unknown, unknown>,
+): FactoryProvider<unknown> {
+  const { container } = options as { container?: Container };
   return {
     provide: AGENT_TOKEN,
-    useFactory: () => options.factory(),
+    useFactory: () =>
+      container === undefined
+        ? (options.factory as () => unknown)()
+        : (options.factory as (seed: unknown) => unknown)(container.requestSeed()),
     scope: options.scope ?? Scope.REQUEST,
   };
 }

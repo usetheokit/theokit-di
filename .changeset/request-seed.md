@@ -1,5 +1,5 @@
 ---
-"@theokit/di": minor
+"@theokit/di": patch
 ---
 
 `Container.runInRequest(callback, { seed })` carries a per-request value, read with

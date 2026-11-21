@@ -18,6 +18,7 @@ import {
   describeClassName,
   describeToken,
   MissingInjectableError,
+  MissingRequestSeedError,
   ReflectMetadataMissingError,
   ScopeViolationError,
   TokenNotFoundError,
@@ -57,6 +58,9 @@ interface RequestStore {
   readonly cache: Map<Token, unknown>;
   /** Instances created during this request — torn down when the request ends. */
   readonly instances: TrackedInstance[];
+  /** Seed passed to `runInRequest`; `hasSeed` tells an explicit `undefined` from none. */
+  readonly seed?: unknown;
+  readonly hasSeed: boolean;
 }
 
 interface Disposable {
@@ -234,17 +238,41 @@ export class Container {
    * try/finally guarantees REQUEST-scoped instances are disposed
    * even if the callback throws.
    */
-  async runInRequest<R>(callback: () => R | Promise<R>): Promise<R> {
+  async runInRequest<R>(callback: () => R | Promise<R>, options?: { seed?: unknown }): Promise<R> {
     this.assertNotDisposed();
+    const hasSeed = options !== undefined && Object.hasOwn(options, "seed");
     const store: RequestStore = {
       cache: new Map(),
       instances: [],
+      seed: hasSeed ? options.seed : undefined,
+      hasSeed,
     };
     try {
       return await this.requestStorage.run(store, async () => callback());
     } finally {
       await this.disposeInstances(store.instances);
     }
+  }
+
+  /**
+   * The seed of the active request scope, as passed to
+   * `runInRequest(cb, { seed })`.
+   *
+   * @throws ScopeViolationError outside a request scope.
+   * @throws MissingRequestSeedError when the scope was opened without a seed.
+   */
+  requestSeed<T>(): T {
+    const store = this.requestStorage.getStore();
+    if (store === undefined) {
+      throw new ScopeViolationError(
+        "requestSeed",
+        "requestSeed() requires container.runInRequest(...) to be active.",
+      );
+    }
+    if (!store.hasSeed) {
+      throw new MissingRequestSeedError();
+    }
+    return store.seed as T;
   }
 
   /**

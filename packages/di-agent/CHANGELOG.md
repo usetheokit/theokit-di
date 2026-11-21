@@ -1,5 +1,54 @@
 # Changelog
 
+## 0.5.0
+
+### Minor Changes
+
+- 1e880aa: The `@theokit/sdk` peer range admits the published `latest`. `>=4.0.1 <5` excluded `5.9.0`, so the
+  dependency gate counted this package among those a release would strand
+  (usetheokit/shared-workflows#64).
+
+  **Both ends were installed and run, not reasoned about from a changelog:**
+
+  | sdk                                                  | typecheck | suite                 |
+  | ---------------------------------------------------- | --------- | --------------------- |
+  | 4.0.1 — the declared floor, previously untested here | clean     | 118 passed, 2 skipped |
+  | 5.9.0 — the published latest                         | clean     | 118 passed, 2 skipped |
+
+  No code changed: the two imports this package makes — `@theokit/sdk` and `@theokit/sdk/workflow` —
+  resolve identically across the major.
+
+  A clean consumer install of this package's tarball with `@theokit/sdk@5.9.0` reports no `ERESOLVE`
+  and resolves **one** copy of the sdk. That check is here because widening a peer range is how
+  `@theokit/studio` ended up with two copies in a consumer's tree, and a range that installs is not the
+  same claim as a range that installs once.
+
+### Patch Changes
+
+- e3f55b2: The README states what the decorators do and what reads them, because the export list reads like a
+  promise that something runs them (usetheokit/theokit-di#70).
+
+  `@Tool`, `@SubAgent`, `@Squad`, `@Workflow`, `@Step`, `@Cron`, `@Hitl`, `@Retriever`, `@Reranker`
+  and their siblings write metadata onto a class and nothing else. The split is deliberate — a
+  declaration and the runtime that acts on it version independently — but a consumer reading the
+  exports has no way to learn that, and reasonably concludes `@Workflow` executes something.
+
+  Measured across every repository in this ecosystem, excluding `node_modules`: **no consumer outside
+  this package reads any of the readers, `@theokit/sdk` included.** Inside it, `workflow-builder.ts`
+  reads `readStepMetadata` and `readWorkflowMetadata`; the other fourteen readers have no consumer
+  anywhere. The issue reported zero readers in total — the two in `workflow-builder.ts` are the
+  refinement, and they matter because the docblock in `decorators/tool.ts` says _"nothing in this
+  package acts on it"_, which is true of `@Tool` and not of `@Workflow`.
+
+  Nothing is retired and no behaviour changes. A declaration surface waiting for a consumer is a fine
+  thing to be, stated; the README now says which one it is, and points at `AgentBuilder` for someone
+  choosing an authoring surface that executes today.
+
+  `tests/decorator-consumers.test.ts` keeps the table honest in both directions: wiring a reader fails
+  until the table names it, and naming a decorator the code does not read fails too. Both were proven
+  by breaking them — the first assertion was written against the whole README, passed with a reader
+  wired, and was rewritten to read the table row.
+
 ## 0.4.0
 
 ### Minor Changes

@@ -51,6 +51,25 @@ await container.runInRequest(async () => {
 });
 ```
 
+## One agent per request: `createAgentBoundary`
+
+The default way to get one agent per request, built from that request's data:
+
+```ts
+import { createAgentBoundary } from "@theokit/di-agent";
+
+const boundary = createAgentBoundary({
+  factory: (message: string) => Agent.create({ /* built from the request */ }),
+});
+
+const reply = await boundary.withAgent("hello", (agent) => agent.send("hi"));
+```
+
+`factory` runs once per `withAgent` call, inside its request scope. Any REQUEST-scoped provider
+resolved from the same container inside `work` shares that agent and can read the seed with
+`container.requestSeed()`. An agent with a `dispose()` method is disposed when `work` settles.
+Pass `container` to register into your own container (before it first resolves anything).
+
 ## The decorators record; they do not execute
 
 `@Tool`, `@SubAgent`, `@Squad`, `@Workflow`, `@Step`, `@Cron`, `@Hitl`, `@Retriever`, `@Reranker`

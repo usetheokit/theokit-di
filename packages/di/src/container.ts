@@ -238,10 +238,7 @@ export class Container {
    * try/finally guarantees REQUEST-scoped instances are disposed
    * even if the callback throws.
    */
-  async runInRequest<R>(
-    callback: () => R | Promise<R>,
-    options?: { seed?: unknown },
-  ): Promise<R> {
+  async runInRequest<R>(callback: () => R | Promise<R>, options?: { seed?: unknown }): Promise<R> {
     this.assertNotDisposed();
     const hasSeed = options !== undefined && Object.hasOwn(options, "seed");
     const store: RequestStore = {

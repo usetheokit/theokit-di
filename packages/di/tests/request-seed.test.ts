@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  Container,
-  MissingRequestSeedError,
-  Scope,
-  ScopeViolationError,
-} from "../src/index.js";
+import { Container, MissingRequestSeedError, Scope, ScopeViolationError } from "../src/index.js";
 
 const tick = () => new Promise((r) => setTimeout(r, 2));
 

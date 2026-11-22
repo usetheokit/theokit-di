@@ -2,6 +2,10 @@
  * Single source of truth for the metadata keys our decorators write and
  * the container reads. Keeping them here means container.ts and
  * decorators/*.ts agree on the wire format.
+ *
+ * The 16 agent keys (`SANDBOX` through `MEMORY_SCOPE`) are not read by the
+ * container. They are kept for compatibility only and are deprecated;
+ * `@theokit/di-agent` owns them as `AGENT_METADATA_KEYS`.
  */
 
 import type { ClassConstructor, Scope, Token } from "../types.js";
@@ -23,37 +27,101 @@ export const METADATA_KEYS = {
   POST_CONSTRUCT: "usetheo:di:post-construct",
   /** string | symbol from `@PreDestroy` method decorator. */
   PRE_DESTROY: "usetheo:di:pre-destroy",
-  /** Map<string|symbol, SandboxOptions> from `@UseSandbox()` property decorator. */
+  /**
+   * Map<string|symbol, SandboxOptions> from `@UseSandbox()` property decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   SANDBOX: "usetheo:di:sandbox",
-  /** Map<string|symbol, SubAgentSpec> from `@SubAgent()` property decorator. */
+  /**
+   * Map<string|symbol, SubAgentSpec> from `@SubAgent()` property decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   SUBAGENT: "usetheo:di:subagent",
-  /** Map<string|symbol, SquadMetadata> from `@Squad()` property decorator. */
+  /**
+   * Map<string|symbol, SquadMetadata> from `@Squad()` property decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   SQUAD: "usetheo:di:squad",
-  /** Map<string|symbol, StepMetadata> from `@Step()` method decorator. */
+  /**
+   * Map<string|symbol, StepMetadata> from `@Step()` method decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   STEP: "usetheo:di:step",
-  /** Map<string|symbol, HitlMetadata> from `@Hitl()` method decorator. */
+  /**
+   * Map<string|symbol, HitlMetadata> from `@Hitl()` method decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   HITL: "usetheo:di:hitl",
-  /** AutoSummarizeConfig from `@AutoSummarize()` class decorator. */
+  /**
+   * AutoSummarizeConfig from `@AutoSummarize()` class decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   AUTO_SUMMARIZE: "usetheo:di:auto-summarize",
-  /** Map<string|symbol, ToolOptions> from `@Tool()` property decorator. */
+  /**
+   * Map<string|symbol, ToolOptions> from `@Tool()` property decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   TOOL: "usetheo:di:tool",
-  /** WorkflowOptions from `@Workflow()` class decorator. */
+  /**
+   * WorkflowOptions from `@Workflow()` class decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   WORKFLOW: "usetheo:di:workflow",
-  /** EvalOptions from `@Eval()` class decorator. */
+  /**
+   * EvalOptions from `@Eval()` class decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   EVAL: "usetheo:di:eval",
-  /** Map<string|symbol, CronMetadata> from `@Cron()` method decorator. */
+  /**
+   * Map<string|symbol, CronMetadata> from `@Cron()` method decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   CRON: "usetheo:di:cron",
-  /** Map<string|symbol, SubscriptionOptions> from `@Subscription()` property decorator. */
+  /**
+   * Map<string|symbol, SubscriptionOptions> from `@Subscription()` property decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   SUBSCRIPTION: "usetheo:di:subscription",
-  /** AuthOptions from `@Auth()` class decorator. */
+  /**
+   * AuthOptions from `@Auth()` class decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   AUTH: "usetheo:di:auth",
-  /** Map<string|symbol, RetrieverOptions> from `@Retriever()` property decorator. */
+  /**
+   * Map<string|symbol, RetrieverOptions> from `@Retriever()` property decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   RETRIEVER: "usetheo:di:retriever",
-  /** Map<string|symbol, RerankerOptions> from `@Reranker()` property decorator. */
+  /**
+   * Map<string|symbol, RerankerOptions> from `@Reranker()` property decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   RERANKER: "usetheo:di:reranker",
-  /** Map<string|symbol, TextSplitterOptions> from `@TextSplitter()` property decorator. */
+  /**
+   * Map<string|symbol, TextSplitterOptions> from `@TextSplitter()` property decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   TEXT_SPLITTER: "usetheo:di:text-splitter",
-  /** Map<string|symbol, MemoryScopeOptions> from `@MemoryScopeDecorator()` property decorator. */
+  /**
+   * Map<string|symbol, MemoryScopeOptions> from `@MemoryScopeDecorator()` property decorator.
+   *
+   * @deprecated Owned by @theokit/di-agent as AGENT_METADATA_KEYS. Kept for compatibility; removed in the next major.
+   */
   MEMORY_SCOPE: "usetheo:di:memory-scope",
 } as const;
 

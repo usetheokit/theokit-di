@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.7.0
+
+### Minor Changes
+
+- 47a9e1b: `@theokit/di-agent` owns its metadata keys (`AGENT_METADATA_KEYS`, same strings as before) and marks
+  the fourteen decorators nothing reads, with their `read*Metadata` functions, `@deprecated`. Nothing is
+  removed; `@Workflow` and `@Step` are unchanged (usetheokit/theokit-di#82).
+
+## 0.6.0
+
+### Minor Changes
+
+- c1326ba: Add `createAgentBoundary({ factory })`, whose `withAgent(seed, work)` opens a request scope seeded
+  with `seed`, builds one agent from it and disposes it when `work` settles. `createAgentProvider`
+  gains a seeded form (`factory: (seed) => ...` with a `container`). The `@theokit/di` peer range is
+  now `>=0.3.0 <0.4`, the first release with `requestSeed` (usetheokit/theokit-di#81).
+
 ## 0.5.0
 
 ### Minor Changes

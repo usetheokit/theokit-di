@@ -22,7 +22,11 @@ describe("AGENT_METADATA_KEYS", () => {
     expect(readToolMetadata(A).get("run")).toEqual({ name: "t", description: "d" });
 
     class B {}
-    Reflect.defineMetadata(METADATA_KEYS.TOOL, new Map([["x", { name: "n", description: "d" }]]), B);
+    Reflect.defineMetadata(
+      METADATA_KEYS.TOOL,
+      new Map([["x", { name: "n", description: "d" }]]),
+      B,
+    );
     expect(readToolMetadata(B).get("x")?.name).toBe("n");
   });
 });

@@ -50,6 +50,6 @@ export {
 } from "./decorators/use-sandbox.js";
 export { readWorkflowMetadata, Workflow, type WorkflowOptions } from "./decorators/workflow.js";
 export { InjectAgent } from "./inject-agent.js";
+export { AGENT_METADATA_KEYS } from "./metadata-keys.js";
 export { AGENT_TOKEN } from "./tokens.js";
 export { buildWorkflow } from "./workflow-builder.js";
-export { AGENT_METADATA_KEYS } from "./metadata-keys.js";

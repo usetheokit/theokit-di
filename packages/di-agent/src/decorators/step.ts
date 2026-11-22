@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { METADATA_KEYS } from "@theokit/di";
+import { AGENT_METADATA_KEYS } from "../metadata-keys.js";
 
 /**
  * Metadata captured by the `@Step()` method decorator. Declares one step of a
@@ -27,9 +27,9 @@ export interface StepMetadata {
 export function Step(metadata: StepMetadata = {}): MethodDecorator {
   return (target: object, propertyKey: string | symbol) => {
     const existing: Map<string | symbol, StepMetadata> =
-      Reflect.getMetadata(METADATA_KEYS.STEP, target.constructor) ?? new Map();
+      Reflect.getMetadata(AGENT_METADATA_KEYS.STEP, target.constructor) ?? new Map();
     existing.set(propertyKey, metadata);
-    Reflect.defineMetadata(METADATA_KEYS.STEP, existing, target.constructor);
+    Reflect.defineMetadata(AGENT_METADATA_KEYS.STEP, existing, target.constructor);
   };
 }
 
@@ -37,5 +37,5 @@ export function Step(metadata: StepMetadata = {}): MethodDecorator {
 export function readStepMetadata(
   target: abstract new (...args: never) => unknown,
 ): ReadonlyMap<string | symbol, StepMetadata> {
-  return Reflect.getMetadata(METADATA_KEYS.STEP, target) ?? new Map();
+  return Reflect.getMetadata(AGENT_METADATA_KEYS.STEP, target) ?? new Map();
 }

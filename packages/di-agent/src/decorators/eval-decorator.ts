@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { METADATA_KEYS } from "@theokit/di";
+import { AGENT_METADATA_KEYS } from "../metadata-keys.js";
 
 import type { DecoratedClass } from "./decorated-class.js";
 
@@ -19,17 +19,22 @@ export interface EvalOptions {
  *
  * Records metadata only. Nothing in this package acts on it — the runtime that does lives in
  * `@theokit/sdk`, which is what lets the declaration and the execution version independently.
+ *
+ * @deprecated Records metadata nothing reads. Use the @theokit/sdk equivalent (@theokit/sdk/eval).
  */
 export function EvalDecorator(options: EvalOptions = {}): ClassDecorator {
   return (target) => {
-    Reflect.defineMetadata(METADATA_KEYS.EVAL, options, target);
+    Reflect.defineMetadata(AGENT_METADATA_KEYS.EVAL, options, target);
   };
 }
 
 /** The `@EvalDecorator` of a class, or `undefined` when it has none.
  *
  *  Class decorators are singular by nature, so this returns one object or `undefined` — unlike the
- *  property and method decorators, which accumulate into a map. */
+ *  property and method decorators, which accumulate into a map.
+ *
+ * @deprecated Records metadata nothing reads. Use the @theokit/sdk equivalent (@theokit/sdk/eval).
+ */
 export function readEvalDecoratorMetadata(target: DecoratedClass): EvalOptions | undefined {
-  return Reflect.getMetadata(METADATA_KEYS.EVAL, target) as EvalOptions | undefined;
+  return Reflect.getMetadata(AGENT_METADATA_KEYS.EVAL, target) as EvalOptions | undefined;
 }

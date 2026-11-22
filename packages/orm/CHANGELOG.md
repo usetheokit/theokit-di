@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.4
+
+### Patch Changes
+
+- 960a1e2: The `@theokit/di` peer range now admits 0.4 (`<0.5`), so the next minor of `@theokit/di`, which only
+  deprecates metadata keys, does not strand these packages.
+
 ## 0.2.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { METADATA_KEYS } from "@theokit/di";
+import { AGENT_METADATA_KEYS } from "../metadata-keys.js";
 
 /** What {@link SubAgent} declares: how the parent agent describes the delegate when deciding
  *  whether to hand work over, and optionally which model it runs on and how deep delegation may
@@ -18,19 +18,24 @@ export interface SubAgentOptions {
  *
  * Records metadata only. Nothing in this package acts on it — the runtime that does lives in
  * `@theokit/sdk`, which is what lets the declaration and the execution version independently.
+ *
+ * @deprecated Records metadata nothing reads. Use the @theokit/sdk equivalent (@theokit/sdk/subagents).
  */
 export function SubAgent(options: SubAgentOptions): PropertyDecorator {
   return (target: object, propertyKey: string | symbol) => {
     const existing: Map<string | symbol, SubAgentOptions> =
-      Reflect.getMetadata(METADATA_KEYS.SUBAGENT, target.constructor) ?? new Map();
+      Reflect.getMetadata(AGENT_METADATA_KEYS.SUBAGENT, target.constructor) ?? new Map();
     existing.set(propertyKey, options);
-    Reflect.defineMetadata(METADATA_KEYS.SUBAGENT, existing, target.constructor);
+    Reflect.defineMetadata(AGENT_METADATA_KEYS.SUBAGENT, existing, target.constructor);
   };
 }
 
-/** Every `@SubAgent` on a class, keyed by the property it was applied to. */
+/** Every `@SubAgent` on a class, keyed by the property it was applied to.
+ *
+ * @deprecated Records metadata nothing reads. Use the @theokit/sdk equivalent (@theokit/sdk/subagents).
+ */
 export function readSubAgentMetadata(
   target: abstract new (...args: never) => unknown,
 ): ReadonlyMap<string | symbol, SubAgentOptions> {
-  return Reflect.getMetadata(METADATA_KEYS.SUBAGENT, target) ?? new Map();
+  return Reflect.getMetadata(AGENT_METADATA_KEYS.SUBAGENT, target) ?? new Map();
 }

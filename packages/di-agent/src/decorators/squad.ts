@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { METADATA_KEYS } from "@theokit/di";
+import { AGENT_METADATA_KEYS } from "../metadata-keys.js";
 
 /**
  * Metadata captured by the `@Squad()` property decorator. Declares a sequential
@@ -21,19 +21,24 @@ export interface SquadMetadata {
  * `@Squad(metadata)` — declare a sequential agent team on a property. The DI
  * container / agent provider materializes it into a `createSquad(...)` at wiring
  * time.
+ *
+ * @deprecated Records metadata nothing reads. Use the @theokit/sdk equivalent (Squad).
  */
 export function Squad(metadata: SquadMetadata): PropertyDecorator {
   return (target: object, propertyKey: string | symbol) => {
     const existing: Map<string | symbol, SquadMetadata> =
-      Reflect.getMetadata(METADATA_KEYS.SQUAD, target.constructor) ?? new Map();
+      Reflect.getMetadata(AGENT_METADATA_KEYS.SQUAD, target.constructor) ?? new Map();
     existing.set(propertyKey, metadata);
-    Reflect.defineMetadata(METADATA_KEYS.SQUAD, existing, target.constructor);
+    Reflect.defineMetadata(AGENT_METADATA_KEYS.SQUAD, existing, target.constructor);
   };
 }
 
-/** Read `@Squad()` metadata off a class constructor. */
+/** Read `@Squad()` metadata off a class constructor.
+ *
+ * @deprecated Records metadata nothing reads. Use the @theokit/sdk equivalent (Squad).
+ */
 export function readSquadMetadata(
   target: abstract new (...args: never) => unknown,
 ): ReadonlyMap<string | symbol, SquadMetadata> {
-  return Reflect.getMetadata(METADATA_KEYS.SQUAD, target) ?? new Map();
+  return Reflect.getMetadata(AGENT_METADATA_KEYS.SQUAD, target) ?? new Map();
 }

@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { METADATA_KEYS } from "@theokit/di";
+import { AGENT_METADATA_KEYS } from "../metadata-keys.js";
 
 import type { DecoratedClass } from "./decorated-class.js";
 
@@ -24,7 +24,7 @@ export interface WorkflowOptions {
  */
 export function Workflow(options: WorkflowOptions = {}): ClassDecorator {
   return (target) => {
-    Reflect.defineMetadata(METADATA_KEYS.WORKFLOW, options, target);
+    Reflect.defineMetadata(AGENT_METADATA_KEYS.WORKFLOW, options, target);
   };
 }
 
@@ -33,5 +33,5 @@ export function Workflow(options: WorkflowOptions = {}): ClassDecorator {
  *  Class decorators are singular by nature, so this returns one object or `undefined` — unlike the
  *  property and method decorators, which accumulate into a map. */
 export function readWorkflowMetadata(target: DecoratedClass): WorkflowOptions | undefined {
-  return Reflect.getMetadata(METADATA_KEYS.WORKFLOW, target) as WorkflowOptions | undefined;
+  return Reflect.getMetadata(AGENT_METADATA_KEYS.WORKFLOW, target) as WorkflowOptions | undefined;
 }

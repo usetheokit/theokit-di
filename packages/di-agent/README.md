@@ -82,14 +82,15 @@ because an export list that names `@Workflow` reads like a promise that somethin
 
 **Measured 2026-09-17, across every repository in this ecosystem, excluding `node_modules`:**
 
-| Decorator family | Read by |
-| --- | --- |
-| `@Workflow`, `@Step` | `workflow-builder.ts`, inside this package |
-| the other fourteen | nothing, anywhere |
+| Decorator family | Read by | Status |
+| --- | --- | --- |
+| `@Workflow`, `@Step` | `workflow-builder.ts`, inside this package | supported |
+| the other fourteen | nothing, anywhere | deprecated |
 
 No consumer outside this package reads any of them, including `@theokit/sdk`.
 
-**This is a declaration surface waiting for a consumer, and that is a fine thing to be — stated.**
+**The fourteen are `@deprecated`: they record metadata nothing reads, and `@theokit/sdk` has runtime
+equivalents (`defineTool`, `@theokit/sdk/cron`, squads, workflows). Nothing is removed.**
 If you are choosing an authoring surface today, `AgentBuilder` in `@theokit/agents` is the one that
 executes. Reach for these when you want a class to *carry* a declaration that your own code reads
 back through `read*Metadata`, which works exactly as documented.

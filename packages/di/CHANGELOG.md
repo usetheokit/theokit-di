@@ -9,6 +9,18 @@
   `MEMORY_SCOPE`) are marked `@deprecated`. `@theokit/di-agent` owns them as `AGENT_METADATA_KEYS`.
   Values are unchanged; they are removed in the next major.
 
+## 0.3.1
+
+### Patch Changes
+
+- 12e1f8a: The workspace declares `0.3.0`, the first release with `requestSeed`, so the `@theokit/di` peer range
+  of `@theokit/di-agent` (`>=0.3.0 <0.4`) is satisfied by what the workspace installs. The release
+  publishes 0.3.1.
+- c03efc6: `Container.runInRequest(callback, { seed })` carries a per-request value, read with
+  `container.requestSeed<T>()`. It throws `ScopeViolationError` outside a request and the new
+  `MissingRequestSeedError` when the request was opened without a seed. Calls without options behave
+  as before (usetheokit/theokit-di#80).
+
 ## 0.2.1
 
 ### Patch Changes

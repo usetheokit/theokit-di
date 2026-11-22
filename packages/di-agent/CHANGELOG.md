@@ -91,6 +91,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deprecated
+
+- The fourteen decorators nothing reads (`@Auth`, `@AutoSummarize`, `@Cron`, `@EvalDecorator`, `@Hitl`,
+  `@MemoryScopeDecorator`, `@Reranker`, `@Retriever`, `@Squad`, `@SubAgent`, `@Subscription`,
+  `@TextSplitter`, `@Tool`, `@UseSandbox`) and their `read*Metadata` functions. Nothing is removed and
+  behaviour is unchanged. `@Workflow` and `@Step` are not deprecated. (#82)
+
+### Added
+
+- `AGENT_METADATA_KEYS`: the agent metadata keys, owned by this package with the same string values
+  `@theokit/di` has, so metadata written by an older install still reads. (#82)
+
 ### Fixed
 
 - Installing this package next to the `@theokit/sdk` it actually needs no longer fails. The declared

@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { METADATA_KEYS } from "@theokit/di";
+import { AGENT_METADATA_KEYS } from "../metadata-keys.js";
 
 import type { DecoratedClass } from "./decorated-class.js";
 
@@ -27,22 +27,27 @@ const DEFAULTS: Required<Omit<AutoSummarizeOptions, "model">> = {
  *
  * Records metadata only. Nothing in this package acts on it — the runtime that does lives in
  * `@theokit/sdk`, which is what lets the declaration and the execution version independently.
+ *
+ * @deprecated Records metadata nothing reads. @theokit/sdk has no equivalent to point to.
  */
 export function AutoSummarize(options: AutoSummarizeOptions = {}): ClassDecorator {
   return (target) => {
     const resolved = { ...DEFAULTS, ...options };
-    Reflect.defineMetadata(METADATA_KEYS.AUTO_SUMMARIZE, resolved, target);
+    Reflect.defineMetadata(AGENT_METADATA_KEYS.AUTO_SUMMARIZE, resolved, target);
   };
 }
 
 /** The `@AutoSummarize` of a class with its defaults resolved, or `undefined` when it has none.
  *
  *  Class decorators are singular by nature, so this returns one object or `undefined` — unlike the
- *  property and method decorators, which accumulate into a map. */
+ *  property and method decorators, which accumulate into a map.
+ *
+ * @deprecated Records metadata nothing reads. @theokit/sdk has no equivalent to point to.
+ */
 export function readAutoSummarizeMetadata(
   target: DecoratedClass,
 ): (Required<Omit<AutoSummarizeOptions, "model">> & { model?: string }) | undefined {
-  return Reflect.getMetadata(METADATA_KEYS.AUTO_SUMMARIZE, target) as
+  return Reflect.getMetadata(AGENT_METADATA_KEYS.AUTO_SUMMARIZE, target) as
     | (Required<Omit<AutoSummarizeOptions, "model">> & { model?: string })
     | undefined;
 }

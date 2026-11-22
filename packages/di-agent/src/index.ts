@@ -52,3 +52,4 @@ export { readWorkflowMetadata, Workflow, type WorkflowOptions } from "./decorato
 export { InjectAgent } from "./inject-agent.js";
 export { AGENT_TOKEN } from "./tokens.js";
 export { buildWorkflow } from "./workflow-builder.js";
+export { AGENT_METADATA_KEYS } from "./metadata-keys.js";

@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Deprecated
+
+- The 16 agent keys in `METADATA_KEYS` (`SANDBOX`, `SUBAGENT`, `SQUAD`, `STEP`, `HITL`, `AUTO_SUMMARIZE`,
+  `TOOL`, `WORKFLOW`, `EVAL`, `CRON`, `SUBSCRIPTION`, `AUTH`, `RETRIEVER`, `RERANKER`, `TEXT_SPLITTER`,
+  `MEMORY_SCOPE`) are marked `@deprecated`. `@theokit/di-agent` owns them as `AGENT_METADATA_KEYS`.
+  Values are unchanged; they are removed in the next major.
+
 ## 0.2.1
 
 ### Patch Changes
